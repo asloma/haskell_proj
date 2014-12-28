@@ -1,29 +1,33 @@
 module FileReader where
-import qualified Data.Text    as T
-import qualified Data.Text.IO as Text
 
-readGameFile fname = 
-                    do
-                     fmap T.lines (Text.readFile fname)
-                    
+import System.IO
+import System.IO.Error
+import Control.Exception
+
 ----------------------------------------
-replaceChar [] = []
-replaceChar (x:xs) = 
-                if x == ',' 
-                  then ' ' : replaceChar xs 
-                else if x == '[' 
-                  then ' ' : replaceChar xs
-                else if x == ']' 
-                  then ' ' : replaceChar xs
-                else x : replaceChar xs
+--wszytuje plik gry
+readGameFile fname =
+                    catch (do 
+                             contents <- readFile fname
+                             return contents
+                          ) errorHandler
+                          where
+                            errorHandler e =
+                              if isDoesNotExistError e
+                                then return ("Nie istnieje " ++ fname)
+                              else return ("Inny wyjatek")
+                                        
+----------------------------------------
+--zwraca listê zawierajaca wiersze 1,2,3 z wczytanego pliku
+getContentList content = 
+                   do
+                     let linia1String = takeWhile (/= '\n') content
+                     let linia23String = tail (dropWhile (/= '\n') content)
+                     let linia2String = takeWhile (/= '\n') linia23String
+                     let linia3String = tail (dropWhile (/= '\n') linia23String)
+                     return [linia1String,linia2String,linia3String]
+----------------------------------------
+                     
+           
+                   
                 
-getIntListFromString row = 
-                          do 
-                            let row1U = (T.unpack row)
-                            let row1R = replaceChar row1U
-                            map read $ words row1R :: [Int]
-                        
-
-getTupleListFromString row = do
-                               let rowU = (T.unpack row) 
-                               read rowU :: [(Int, Int)]
