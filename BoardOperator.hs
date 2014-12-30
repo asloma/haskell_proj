@@ -25,11 +25,18 @@ printHousesListTop (x:xs) = if (x < 10)
 
 ----------------------------------------
 --drukuje planszê gry z iloœci¹ domków (lista z lewej i na górze)
+printGameBoardNoLegend  rowsNameList colsNameList table =
+                                             do
+                                               putStrLn ("    " L.++ printHousesListTop colsNameList)
+                                               printTable rowsNameList table
+                                               
+                                               
+----------------------------------------
+--drukuje planszê gry z iloœci¹ domków (lista z lewej i na górze)
 printGameBoard  rowsNameList colsNameList table =
                                              do
                                                putStrLn ("------------------------------")
-                                               putStrLn ("    " L.++ printHousesListTop colsNameList)
-                                               printTable rowsNameList table
+                                               printGameBoardNoLegend rowsNameList colsNameList table
                                                putStrLn ("Legenda: ")
                                                putStrLn ("h - domek ")
                                                putStrLn ("e - pole puste")

@@ -6,12 +6,12 @@ import Solver
 import Data.Matrix as M
 import Data.Vector
 import Data.List as L
-
+import Test
            
 main::IO()
 main = 
       do
-        contentString <- readGameFile "p1.txt"
+        contentString <- readGameFile "test_files/p1.txt"
         contentList <- getContentList contentString
           
         let row1 = contentList !! 0
@@ -40,8 +40,8 @@ main =
         putStrLn "Plansza po wczytaniu:"        
         printGameBoard  intListLeft intListTop (matrixToList gameBoard)
 
-        putStrLn "Rozwiazanie:"
         let solution = solvePuzzles gameBoard intListLeft intListTop
+        putStrLn "Rozwiazanie:"
         printGameBoard  intListLeft intListTop (matrixToList solution)
 
         putStrLn "Koniec"
