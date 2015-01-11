@@ -74,6 +74,12 @@ isThisPlacePossibleTank y x mat =       let     left = x/=1
                                                 (left && mat Data.Matrix.! (y,x-1) == 3) || 
                                                 (right && mat Data.Matrix.! (y,x+1) == 3) )
 
+safeGetMatrix y x mat	| x<1 = -1
+			| y<1 = -1
+			| x>ncols mat = -1
+			| y>nrows mat = -1
+			| otherwise = mat Data.Matrix.!	(y,x)
+
 countFreq elem vec = Data.Vector.length (Data.Vector.filter (\x -> x==elem) vec)
 
 countFreqList elem list = Data.List.length (Data.List.filter (\x -> x==elem) list)
