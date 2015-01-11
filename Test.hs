@@ -8,6 +8,12 @@ import Data.Matrix as M
 import Data.Vector as V
 
 ----------------------------------------
+--debug = 1 - wykonanie programu w trybie debugowania
+--debug = 0 - wykonanie programu w zwyklym trybie
+debug :: Integer
+debug = 1
+
+----------------------------------------
 --wczytuje plik i wyswietla plansze z zaznaczonymi domkami
 readFileShowBoardTest fPath = 
       do
@@ -40,7 +46,7 @@ readFileShowBoardTest fPath =
         
         putStrLn "------------------------------"
         putStrLn "Plansza po wczytaniu:"        
-        printGameBoard  intListLeft intListTop (matrixToList gameBoard)
+        printGameBoard  intListLeft intListTop (matrixToList gameBoard debug) debug
 
         putStrLn ("readFileShowBoardTest file: " L.++ fPath L.++ " END")
         putStrLn "------------------------------------------------------------"
@@ -75,7 +81,7 @@ openSolutionAndShow intListLeft intListTop matrix fSolution =
                                         
                                         let gameBoard = putTanks 1 1 matrix intSolList 
              
-                                        printGameBoardNoLegend  intListLeft intListTop (matrixToList gameBoard)
+                                        printGameBoardNoLegend  intListLeft intListTop (matrixToList gameBoard debug)
 
                                         --putStrLn ("openSolutionAndShow END")
 
@@ -106,7 +112,8 @@ solverTest fPath fSolPath = do
         
         putStrLn "------------------------------"
         putStrLn "Rozwiazanie solvera:"
-        printGameBoardNoLegend  intListLeft intListTop (matrixToList solution)
+        printGameBoardNoLegend  intListLeft intListTop (matrixToList solution debug)
+        putStrLn ("+ - pole sprawdzone")
         
         putStrLn "------------------------------"
         putStrLn "Rozwiazanie wczytane z pliku:"   
