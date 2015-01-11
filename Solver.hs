@@ -12,9 +12,9 @@ import Data.Matrix
 import Data.Vector
 import Data.List
 
-mat = fromLists [ [0,1,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,1,0,1,0],[1,0,0,0,1,0],[0,0,1,0,0,1] ]
-xList = [1,1,2,1,1,1]
-yList = [1,0,2,1,2,1]
+mat = fromLists [ [0,1,0,0,0,0],[0,0,0,0,1,0],[0,0,1,0,0,0],[0,1,0,1,0,0],[1,0,0,0,1,0],[0,0,1,0,0,0] ]
+xList = [2,1,2,0,2,1]
+yList = [1,2,0,3,0,2]
 
 listFromIntegral list = Data.List.map fromIntegral list
 
@@ -30,26 +30,55 @@ changeZeroToTank _ x =  if x == 0 then
                                 3 
                         else x
 
-isThisPlacePossibleHouse x y mat =      let     left = x/=1
-                                                right = x/= ncols mat
-                                                top = y/=1
-                                                down = y/= nrows mat
-                                        in      (top && mat Data.Matrix.! (x,y-1) == 1) || (down && mat Data.Matrix.! (x,y+1) == 1) || (left && mat Data.Matrix.! (x-1,y) == 1) || (right && mat Data.Matrix.! (x+1,y) == 1)
+isThisPlacePossibleHouse :: Int -> Int -> Matrix Integer -> Bool
+isThisPlacePossibleHouse y x mat = 	(safeGetMatrix (y-1) x mat == 1) ||
+					(safeGetMatrix (y+1) x mat == 1) || 
+					(safeGetMatrix y (x-1) mat == 1) || 
+					(safeGetMatrix y (x+1) mat == 1)
 
-isThisPlacePossibleTank x y mat =       let     left = x/=1
+isLastPlaceAvalibleHouse :: Int -> Int -> Matrix Integer -> Bool
+isLastPlaceAvalibleHouse y x mat =      let     left = x/=1
                                                 right = x/= ncols mat
                                                 top = y/=1
                                                 down = y/= nrows mat
-                                        in      not ( (top && mat Data.Matrix.! (x,y-1) == 3) ||  
-                                                (top && left && mat Data.Matrix.! (x-1,y-1) == 3) ||  
-                                                (top && right && mat Data.Matrix.! (x+1,y-1) == 3) ||  
-                                                (down && mat Data.Matrix.! (x,y+1) == 3) || 
-                                                (down && left && mat Data.Matrix.! (x-1,y+1) == 3) || 
-                                                (down && right && mat Data.Matrix.! (x+1,y+1) == 3) || 
-                                                (left && mat Data.Matrix.! (x-1,y) == 3) || 
-                                                (right && mat Data.Matrix.! (x+1,y) == 3) )
+						avalible = left:right:top:down:[]
+						avalibleNum = countFreqList True avalible
+                                                checked = 	(safeGetMatrix (y-1) x mat == 9 || safeGetMatrix (y-1) x mat == 1 ):
+								(safeGetMatrix (y+1) x mat == 9 || safeGetMatrix (y+1) x mat == 1 ):
+								(safeGetMatrix y (x-1) mat == 9 || safeGetMatrix y (x-1) mat == 1 ):
+								(safeGetMatrix y (x+1) mat == 9 || safeGetMatrix y (x+1) mat == 1 ):[]
+						checkedNum = countFreqList True checked
+					in	if( checkedNum == avalibleNum - 1) then True else False
+
+processIsLastPlaceAvalible :: Int -> Int -> Matrix Integer -> Matrix Integer						
+processIsLastPlaceAvalible y x mat =   		if (isLastPlaceAvalibleHouse y x mat) then
+							if (safeGetMatrix y (x+1) mat == 0) then (setElem 3 (y-1,x) mat)
+							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 3 (y+1,x) mat)
+							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 3 (y,x-1) mat)
+							else if (safeGetMatrix y (x+1) mat == 0) then (setElem 3 (y,x+1) mat)
+							else mat
+						else mat
+
+isThisPlacePossibleTank :: Int -> Int -> Matrix Integer -> Bool
+isThisPlacePossibleTank y x mat = 		not ( (safeGetMatrix (y-1) x mat == 3) ||  
+                                                (safeGetMatrix (y-1) (x-1) mat == 3) ||  
+                                                (safeGetMatrix (y-1) (x+1) mat == 3) ||  
+                                                (safeGetMatrix (y+1) x mat == 3) || 
+                                                (safeGetMatrix (y+1) (x-1) mat == 3) || 
+                                                (safeGetMatrix (y+1) (x+1) mat == 3) || 
+                                                (safeGetMatrix y (x-1) mat == 3) || 
+                                                (safeGetMatrix y (x+1) mat == 3) )
+
+safeGetMatrix :: Int -> Int -> Matrix Integer -> Integer
+safeGetMatrix y x mat	| x<1 = 8
+			| y<1 = 8
+			| x>ncols mat = 8
+			| y>nrows mat = 8
+			| otherwise = mat Data.Matrix.!	(y,x)
 
 countFreq elem vec = Data.Vector.length (Data.Vector.filter (\x -> x==elem) vec)
+
+countFreqList elem list = Data.List.length (Data.List.filter (\x -> x==elem) list)
 
 processRows mat list = processElemFunInt 1 mat (listFromIntegral list) getRow mapRow
 
@@ -68,15 +97,25 @@ processElemFunInt pos mat list getFun mapFun    | pos >= Prelude.length list    
 
 checkNeighbours mat = iterateThrMatrix 1 1 mat
 
-iterateThrMatrix posX posY mat  | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix 1 (posY+1) mat
+checkHousesLastPlaces mat = iterateThrMatrix2 1 1 mat
+
+iterateThrMatrix posY posX mat  | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix (posY+1) 1 mat
                                 | posY > Data.Vector.length (getCol 1 mat) = mat
-                                | otherwise =   let elem = mat Data.Matrix.! (posX, posY)
+                                | otherwise =   let elem = mat Data.Matrix.! (posY,posX)
                                                 in
                                                         if elem == 0
-                                                        then    if (isThisPlacePossibleHouse posX posY mat && isThisPlacePossibleTank posX posY mat)
-                                                                then iterateThrMatrix (posX+1) posY mat 
-                                                                else iterateThrMatrix (posX+1) posY (setElem 9 (posX, posY) mat)
-                                                        else iterateThrMatrix (posX+1) posY mat 
+                                                        then    if (isThisPlacePossibleHouse posY posX mat && isThisPlacePossibleTank posY posX mat)
+                                                                then iterateThrMatrix posY (posX+1) mat 
+                                                                else iterateThrMatrix posY (posX+1) (setElem 9 (posY, posX) mat)
+                                                        else iterateThrMatrix posY (posX+1) mat 
+
+iterateThrMatrix2 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix2 (posY+1) 1 mat
+                                | posY > Data.Vector.length (getCol 1 mat) = mat
+                                | otherwise =   let elem = mat Data.Matrix.! (posY, posX)
+                                                in
+                                                        if elem == 1
+                                                        then iterateThrMatrix2 posY (posX+1) (processIsLastPlaceAvalible posY posX mat)   
+                                                        else iterateThrMatrix2 posY (posX+1) mat 
 
 
 matElem x mat = Prelude.elem x (Data.Matrix.toList mat)
@@ -84,7 +123,7 @@ matElem x mat = Prelude.elem x (Data.Matrix.toList mat)
 solvePuzzles mat xList yList    | not (matElem 0 mat) = mat
                                 | otherwise = 
                                         --solvePuzzles (checkSharedTanks(checkNeighbours (checkSharedTanks(processCols (checkSharedTanks (processRows mat yList)) xList)))) xList yList -- po kazdym wolaniu funkcji jednej z tych 3 funkcji dac inne iterateThrMatrix ktore sprawdza domki, i jesli maja w sasiedztwie zbiornik
-                                        solvePuzzles (checkNeighbours (processCols (processRows mat yList) xList)) xList yList  
+                                        solvePuzzles (checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) xList yList  
                                         
 
 
