@@ -30,54 +30,50 @@ changeZeroToTank _ x =  if x == 0 then
                                 3 
                         else x
 
-isThisPlacePossibleHouse y x mat =      let     left = x/=1
-                                                right = x/= ncols mat
-                                                top = y/=1
-                                                down = y/= nrows mat
-                                        in      (top && mat Data.Matrix.! (y-1,x) == 1) || (down && mat Data.Matrix.! (y+1,x) == 1) || (left && mat Data.Matrix.! (y,x-1) == 1) || (right && mat Data.Matrix.! (y,x+1) == 1)
+isThisPlacePossibleHouse :: Int -> Int -> Matrix Integer -> Bool
+isThisPlacePossibleHouse y x mat = 	(safeGetMatrix (y-1) x mat == 1) ||
+					(safeGetMatrix (y+1) x mat == 1) || 
+					(safeGetMatrix y (x-1) mat == 1) || 
+					(safeGetMatrix y (x+1) mat == 1)
 
+isLastPlaceAvalibleHouse :: Int -> Int -> Matrix Integer -> Bool
 isLastPlaceAvalibleHouse y x mat =      let     left = x/=1
                                                 right = x/= ncols mat
                                                 top = y/=1
                                                 down = y/= nrows mat
 						avalible = left:right:top:down:[]
 						avalibleNum = countFreqList True avalible
-                                                checked = 	(top &&  mat Data.Matrix.! (y-1,x) == 9 || mat Data.Matrix.! (y-1,x) == 1 ):
-								(down && mat Data.Matrix.! (y+1,x) == 9 || mat Data.Matrix.! (y+1,x) == 1 ):
-								(left && mat Data.Matrix.! (y,x-1) == 9 || mat Data.Matrix.! (y,x-1) == 1 ):
-								(right && mat Data.Matrix.! (y,x+1) == 9 || mat Data.Matrix.! (y,x+1) == 1 ):[]
+                                                checked = 	(safeGetMatrix (y-1) x mat == 9 || safeGetMatrix (y-1) x mat == 1 ):
+								(safeGetMatrix (y+1) x mat == 9 || safeGetMatrix (y+1) x mat == 1 ):
+								(safeGetMatrix y (x-1) mat == 9 || safeGetMatrix y (x-1) mat == 1 ):
+								(safeGetMatrix y (x+1) mat == 9 || safeGetMatrix y (x+1) mat == 1 ):[]
 						checkedNum = countFreqList True checked
 					in	if( checkedNum == avalibleNum - 1) then True else False
-							
-processIsLastPlaceAvalible y x mat =    let     left = x/=1
-                                                right = x/= ncols mat
-                                                top = y/=1
-                                                down = y/= nrows mat
-					in	if (isLastPlaceAvalibleHouse x y mat) then
-							if (top && mat Data.Matrix.! (y-1,x) == 0) then (setElem 3 (y-1,x) mat)
-							else if (down && mat Data.Matrix.! (y+1,x) == 0) then (setElem 3 (y+1,x) mat)
-							else if (left && mat Data.Matrix.! (y,x-1) == 0) then (setElem 3 (y,x-1) mat)
-							else if (right && mat Data.Matrix.! (y,x+1) == 0) then (setElem 3 (y,x+1) mat)
+
+processIsLastPlaceAvalible :: Int -> Int -> Matrix Integer -> Matrix Integer						
+processIsLastPlaceAvalible y x mat =   		if (isLastPlaceAvalibleHouse y x mat) then
+							if (safeGetMatrix y (x+1) mat == 0) then (setElem 3 (y-1,x) mat)
+							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 3 (y+1,x) mat)
+							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 3 (y,x-1) mat)
+							else if (safeGetMatrix y (x+1) mat == 0) then (setElem 3 (y,x+1) mat)
 							else mat
 						else mat
 
-isThisPlacePossibleTank y x mat =       let     left = x/=1
-                                                right = x/= ncols mat
-                                                top = y/=1
-                                                down = y/= nrows mat
-                                        in      not ( (top && mat Data.Matrix.! (y-1,x) == 3) ||  
-                                                (top && left && mat Data.Matrix.! (y-1,x-1) == 3) ||  
-                                                (top && right && mat Data.Matrix.! (y-1,x+1) == 3) ||  
-                                                (down && mat Data.Matrix.! (y+1,x) == 3) || 
-                                                (down && left && mat Data.Matrix.! (y+1,x-1) == 3) || 
-                                                (down && right && mat Data.Matrix.! (y+1,x+1) == 3) || 
-                                                (left && mat Data.Matrix.! (y,x-1) == 3) || 
-                                                (right && mat Data.Matrix.! (y,x+1) == 3) )
+isThisPlacePossibleTank :: Int -> Int -> Matrix Integer -> Bool
+isThisPlacePossibleTank y x mat = 		not ( (safeGetMatrix (y-1) x mat == 3) ||  
+                                                (safeGetMatrix (y-1) (x-1) mat == 3) ||  
+                                                (safeGetMatrix (y-1) (x+1) mat == 3) ||  
+                                                (safeGetMatrix (y+1) x mat == 3) || 
+                                                (safeGetMatrix (y+1) (x-1) mat == 3) || 
+                                                (safeGetMatrix (y+1) (x+1) mat == 3) || 
+                                                (safeGetMatrix y (x-1) mat == 3) || 
+                                                (safeGetMatrix y (x+1) mat == 3) )
 
-safeGetMatrix y x mat	| x<1 = -1
-			| y<1 = -1
-			| x>ncols mat = -1
-			| y>nrows mat = -1
+safeGetMatrix :: Int -> Int -> Matrix Integer -> Integer
+safeGetMatrix y x mat	| x<1 = 8
+			| y<1 = 8
+			| x>ncols mat = 8
+			| y>nrows mat = 8
 			| otherwise = mat Data.Matrix.!	(y,x)
 
 countFreq elem vec = Data.Vector.length (Data.Vector.filter (\x -> x==elem) vec)
@@ -113,13 +109,13 @@ iterateThrMatrix posY posX mat  | posX > Data.Vector.length (getRow 1 mat) = ite
                                                                 else iterateThrMatrix posY (posX+1) (setElem 9 (posY, posX) mat)
                                                         else iterateThrMatrix posY (posX+1) mat 
 
-iterateThrMatrix2 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix (posY+1) 1 mat
+iterateThrMatrix2 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix2 (posY+1) 1 mat
                                 | posY > Data.Vector.length (getCol 1 mat) = mat
                                 | otherwise =   let elem = mat Data.Matrix.! (posY, posX)
                                                 in
                                                         if elem == 1
-                                                        then iterateThrMatrix posY (posX+1) (processIsLastPlaceAvalible posY posX mat)   
-                                                        else iterateThrMatrix posY (posX+1) mat 
+                                                        then iterateThrMatrix2 posY (posX+1) (processIsLastPlaceAvalible posY posX mat)   
+                                                        else iterateThrMatrix2 posY (posX+1) mat 
 
 
 matElem x mat = Prelude.elem x (Data.Matrix.toList mat)
