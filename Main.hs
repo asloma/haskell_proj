@@ -40,8 +40,8 @@ main =
         putStrLn "Plansza po wczytaniu:"        
         printGameBoard  intListLeft intListTop (matrixToList gameBoard)
 
-        let solution = solvePuzzles gameBoard intListLeft intListTop
+        let solution = solvePuzzles gameBoard  intListTop intListLeft
         putStrLn "Rozwiazanie:"
         printGameBoard  intListLeft intListTop (matrixToList solution)
-
+        putStrLn(show solution)
         putStrLn "Koniec"

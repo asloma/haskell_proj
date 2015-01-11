@@ -102,7 +102,7 @@ solverTest fPath fSolPath = do
         let board = fromLists (L.replicate rowsNumber gameBoardRow)
         let gameBoard = putHouses 1 1 board row3IntTupleList --domki umieszczone na planszy
         
-        let solution = solvePuzzles gameBoard intListLeft intListTop
+        let solution = solvePuzzles gameBoard intListTop intListLeft
         
         putStrLn "------------------------------"
         putStrLn "Rozwiazanie solvera:"
@@ -112,7 +112,8 @@ solverTest fPath fSolPath = do
         putStrLn "Rozwiazanie wczytane z pliku:"   
         openSolutionAndShow intListLeft intListTop gameBoard fSolPath
         putStrLn "------------------------------"
-         
+        putStrLn "Macierz solvera:"
+        putStrLn(show solution) 
         putStrLn ("solverTest file: " L.++ fPath L.++ " END")
         putStrLn "------------------------------------------------------------"
 
@@ -122,7 +123,7 @@ solverTestAll =
          do
           solverTest "test_files/p1.txt" "sol_files/sp1.txt"
           --solverTest "test_files/p2.txt" "sol_files/sp2.txt"
-          --solverTest "test_files/p3.txt" "sol_files/sp3.txt"
+          solverTest "test_files/p3.txt" "sol_files/sp3.txt"
           --solverTest "test_files/p4.txt" "sol_files/sp4.txt"
           --solverTest "test_files/p5.txt" "sol_files/sp5.txt"
           --solverTest "test_files/p6.txt" "sol_files/sp6.txt"
