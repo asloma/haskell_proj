@@ -30,24 +30,24 @@ changeZeroToTank _ x =  if x == 0 then
                                 3 
                         else x
 
-isThisPlacePossibleHouse x y mat =      let     left = x/=1
+isThisPlacePossibleHouse y x mat =      let     left = x/=1
                                                 right = x/= ncols mat
                                                 top = y/=1
                                                 down = y/= nrows mat
-                                        in      (top && mat Data.Matrix.! (x,y-1) == 1) || (down && mat Data.Matrix.! (x,y+1) == 1) || (left && mat Data.Matrix.! (x-1,y) == 1) || (right && mat Data.Matrix.! (x+1,y) == 1)
+                                        in      (top && mat Data.Matrix.! (y-1,x) == 1) || (down && mat Data.Matrix.! (y+1,x) == 1) || (left && mat Data.Matrix.! (y,x-1) == 1) || (right && mat Data.Matrix.! (y,x+1) == 1)
 
-isThisPlacePossibleTank x y mat =       let     left = x/=1
+isThisPlacePossibleTank y x mat =       let     left = x/=1
                                                 right = x/= ncols mat
                                                 top = y/=1
                                                 down = y/= nrows mat
-                                        in      not ( (top && mat Data.Matrix.! (x,y-1) == 3) ||  
-                                                (top && left && mat Data.Matrix.! (x-1,y-1) == 3) ||  
-                                                (top && right && mat Data.Matrix.! (x+1,y-1) == 3) ||  
-                                                (down && mat Data.Matrix.! (x,y+1) == 3) || 
-                                                (down && left && mat Data.Matrix.! (x-1,y+1) == 3) || 
-                                                (down && right && mat Data.Matrix.! (x+1,y+1) == 3) || 
-                                                (left && mat Data.Matrix.! (x-1,y) == 3) || 
-                                                (right && mat Data.Matrix.! (x+1,y) == 3) )
+                                        in      not ( (top && mat Data.Matrix.! (y-1,x) == 3) ||  
+                                                (top && left && mat Data.Matrix.! (y-1,x-1) == 3) ||  
+                                                (top && right && mat Data.Matrix.! (y-1,x+1) == 3) ||  
+                                                (down && mat Data.Matrix.! (y+1,x) == 3) || 
+                                                (down && left && mat Data.Matrix.! (y+1,x-1) == 3) || 
+                                                (down && right && mat Data.Matrix.! (y+1,x+1) == 3) || 
+                                                (left && mat Data.Matrix.! (y,x-1) == 3) || 
+                                                (right && mat Data.Matrix.! (y,x+1) == 3) )
 
 countFreq elem vec = Data.Vector.length (Data.Vector.filter (\x -> x==elem) vec)
 
