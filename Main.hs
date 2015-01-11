@@ -7,7 +7,7 @@ import Data.Matrix as M
 import Data.List as L
 import System.IO
 import Test()
-
+ 
 ----------------------------------------
 --debug = 1 - wykonanie programu w trybie debugowania
 --debug = 0 - wykonanie programu w zwyklym trybie

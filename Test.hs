@@ -6,7 +6,7 @@ import Solver
 import Data.List as L
 import Data.Matrix as M
 import Data.Vector as V
-
+ 
 ----------------------------------------
 --debug = 1 - wykonanie programu w trybie debugowania
 --debug = 0 - wykonanie programu w zwyklym trybie

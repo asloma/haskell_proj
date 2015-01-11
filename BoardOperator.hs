@@ -4,7 +4,7 @@ import Data.Matrix as M
 import Data.Vector as V
 import Data.List as L
 import System.IO
-
+ 
 ----------------------------------------
 --zwraca wiersz z liczb¹ domkow w danym wierszu
 retRow rowName elem = 
