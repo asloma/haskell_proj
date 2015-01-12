@@ -56,21 +56,26 @@ readSolve inputFile =
                         let row2 = contentList !! 1
                         let row3 = contentList !! 2
         
-                        let intListLeft         = read row1 :: [Int]
-                        let intListTop          = read row2 :: [Int]
+                        let intListLeft         = read row1 :: [Integer]
+                        let intListTop          = read row2 :: [Integer]
                         let row3IntTupleList    = mapTuple (\x -> x+1) (read row3 :: [(Int, Int)]) --matrix numerowy od 1,1, a nie 0,0
         
                         let colsNumber = L.length intListTop
                         let rowsNumber = L.length intListLeft
                 
-                        let gameBoardRow = [x-x | x <- [1..colsNumber]]--replicate colsNumber 0        
+                        let gameBoardRow = [toInteger(x-x) | x <- [1..colsNumber]]--replicate colsNumber 0        
                         let board = fromLists (L.replicate rowsNumber gameBoardRow)
                         let gameBoard = putHouses 1 1 board row3IntTupleList --domki umieszczone na planszy
-        
+                        putStrLn(show intListLeft)
+                        putStrLn(show intListTop)
+                        putStrLn(show row3IntTupleList)
+                        
                         putStrLn "------------------------------"
                         putStrLn "Plansza po wczytaniu:"        
                         printGameBoard  intListLeft intListTop (matrixToList gameBoard Main.debug) Main.debug
-
+                        putStrLn "Macierz solvera:"
+                        putStrLn(show gameBoard) 
+        
                         let solution = solvePuzzles gameBoard  intListTop intListLeft
                         putStrLn "Rozwiazanie solvera:"
                         printGameBoard  intListLeft intListTop (matrixToList solution Main.debug) Main.debug
@@ -87,14 +92,14 @@ readSolveWrite inputFile outputFile =
                                         let row2 = contentList !! 1
                                         let row3 = contentList !! 2
         
-                                        let intListLeft         = read row1 :: [Int]
-                                        let intListTop          = read row2 :: [Int]
+                                        let intListLeft         = read row1 :: [Integer]
+                                        let intListTop          = read row2 :: [Integer]
                                         let row3IntTupleList    = mapTuple (\x -> x+1) (read row3 :: [(Int, Int)]) --matrix numerowy od 1,1, a nie 0,0
         
                                         let colsNumber = L.length intListTop
                                         let rowsNumber = L.length intListLeft
                 
-                                        let gameBoardRow = [x-x | x <- [1..colsNumber]]--replicate colsNumber 0        
+                                        let gameBoardRow = [toInteger(x-x) | x <- [1..colsNumber]]--replicate colsNumber 0        
                                         let board = fromLists (L.replicate rowsNumber gameBoardRow)
                                         let gameBoard = putHouses 1 1 board row3IntTupleList --domki umieszczone na planszy
 

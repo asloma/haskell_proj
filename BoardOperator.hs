@@ -49,7 +49,7 @@ printTable rowsNameList rowElemList =
 
 ----------------------------------------
 --formatuje listê domków na górze planszy
-printHousesListTop :: [Int] -> String
+printHousesListTop :: [Integer] -> String
 printHousesListTop [] = []
 printHousesListTop (x:xs) = if (x < 10)
                         then (show x) L.++ "  " L.++ printHousesListTop xs

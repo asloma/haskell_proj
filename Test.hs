@@ -26,8 +26,8 @@ readFileShowBoardTest fPath =
         let row2 = contentList !! 1
         let row3 = contentList !! 2
         
-        let intListLeft         = read row1 :: [Int]
-        let intListTop          = read row2 :: [Int]
+        let intListLeft         = read row1 :: [Integer]
+        let intListTop          = read row2 :: [Integer]
         let row3IntTupleList    = mapTuple (\x -> x+1) (read row3 :: [(Int, Int)]) --matrix numerowy od 1,1, a nie 0,0
         
         putStrLn ("Wczytany 1 wiersz lewa: " L.++ (show intListLeft))        
@@ -40,7 +40,7 @@ readFileShowBoardTest fPath =
         putStrLn ("Kolumn: " L.++ (show colsNumber))
         putStrLn ("Wierszy: " L.++ (show rowsNumber))
         
-        let gameBoardRow = [x-x | x <- [1..colsNumber]]--replicate colsNumber 0        
+        let gameBoardRow = [toInteger(x-x) | x <- [1..colsNumber]]--replicate colsNumber 0        
         let board = fromLists (L.replicate rowsNumber gameBoardRow)
         let gameBoard = putHouses 1 1 board row3IntTupleList --domki umieszczone na planszy
         
@@ -97,14 +97,14 @@ solverTest fPath fSolPath = do
         let row2 = contentList !! 1
         let row3 = contentList !! 2
         
-        let intListLeft         = read row1 :: [Int]
-        let intListTop          = read row2 :: [Int]
+        let intListLeft         = read row1 :: [Integer]
+        let intListTop          = read row2 :: [Integer]
         let row3IntTupleList    = mapTuple (\x -> x+1) (read row3 :: [(Int, Int)]) --matrix numerowy od 1,1, a nie 0,0
         
         let colsNumber = L.length intListTop
         let rowsNumber = L.length intListLeft
         
-        let gameBoardRow = [x-x | x <- [1..colsNumber]]--replicate colsNumber 0        
+        let gameBoardRow = [toInteger(x-x) | x <- [1..colsNumber]]--replicate colsNumber 0        
         let board = fromLists (L.replicate rowsNumber gameBoardRow)
         let gameBoard = putHouses 1 1 board row3IntTupleList --domki umieszczone na planszy
         
@@ -130,7 +130,7 @@ solverTestAll =
          do
           solverTest "test_files/p1.txt" "sol_files/sp1.txt"
           --solverTest "test_files/p2.txt" "sol_files/sp2.txt"
-          solverTest "test_files/p3.txt" "sol_files/sp3.txt"
+          --solverTest "test_files/p3.txt" "sol_files/sp3.txt"
           --solverTest "test_files/p4.txt" "sol_files/sp4.txt"
           --solverTest "test_files/p5.txt" "sol_files/sp5.txt"
           --solverTest "test_files/p6.txt" "sol_files/sp6.txt"
