@@ -11,10 +11,11 @@ module Solver where
 import Data.Matrix
 import Data.Vector
 import Data.List
+ 
+mat = fromLists [ [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1],[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0],[1,0,0,0,1,0,1,1,0,0,0,1,0,0,0,0],[0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,0],[0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0],[0,0,1,0,1,1,0,0,0,0,1,0,0,0,0,1],[0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0],[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0],[0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],[0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0],[0,1,0,0,0,0,0,1,1,0,0,0,1,0,0,0],[0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],[0,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0],[0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0] ]
+xList = [4,2,4,0,6,0,5,2,5,2,5,2,4,3,2,5]
+yList = [4,3,2,3,4,2,6,1,6,1,4,2,6,0,4,3]
 
-mat = fromLists [ [0,1,0,0,0,0,0,0],[0,0,1,0,0,1,0,0],[0,1,0,0,0,0,0,1],[0,0,0,1,0,1,0,0],[0,0,0,0,0,0,0,0],[0,0,0,1,0,0,1,0],[0,1,0,0,0,1,0,0],[0,0,0,0,0,0,1,0] ]
-xList = [3,0,1,2,0,2,1,3]
-yList = [3,1,1,1,1,2,2,1]
 
 
 listFromIntegral list = Data.List.map fromIntegral list
@@ -72,8 +73,25 @@ hasHouseTank y x mat =      let
                                                 		(safeGetMatrix y (x+1) mat == 1) )
 					in	if (hasTank && not nearHouse) then True else False
 
+agressiveHasHouseTank :: Int -> Int -> Matrix Integer -> Bool
+agressiveHasHouseTank y x mat =      let    
+						hasTank = 	(safeGetMatrix (y-1) x mat == 3) ||
+								(safeGetMatrix (y+1) x mat == 3) || 
+								(safeGetMatrix y (x-1) mat == 3) || 
+								(safeGetMatrix y (x+1) mat == 3)
+					in	if hasTank then True else False
+
 processHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer						
 processHasHouseTank y x mat =   		if (hasHouseTank y x mat) then
+							if (safeGetMatrix (y-1) x mat  == 0) then (setElem 9 (y-1,x) mat)
+							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 9 (y+1,x) mat)
+							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 9 (y,x-1) mat)
+							else if (safeGetMatrix y (x+1) mat == 0) then (setElem 9 (y,x+1) mat)
+							else mat
+						else mat
+
+agressiveProcessHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer						
+agressiveProcessHasHouseTank y x mat =   		if (agressiveHasHouseTank y x mat) then
 							if (safeGetMatrix (y-1) x mat  == 0) then (setElem 9 (y-1,x) mat)
 							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 9 (y+1,x) mat)
 							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 9 (y,x-1) mat)
@@ -133,6 +151,8 @@ checkHousesLastPlaces mat = iterateThrMatrix2 1 1 mat
 
 checkHousesWithTanks mat = iterateThrMatrix3 1 1 mat
 
+agressiveCheckHousesWithTanks mat = iterateThrMatrix4 1 1 mat
+
 iterateThrMatrix posY posX mat  | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix (posY+1) 1 mat
                                 | posY > Data.Vector.length (getCol 1 mat) = mat
                                 | otherwise =   let elem = mat Data.Matrix.! (posY,posX)
@@ -159,13 +179,26 @@ iterateThrMatrix3 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = ite
                                                         then iterateThrMatrix3 posY (posX+1) (processHasHouseTank posY posX mat)   
                                                         else iterateThrMatrix3 posY (posX+1) mat 
 
+iterateThrMatrix4 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix4 (posY+1) 1 mat
+                                | posY > Data.Vector.length (getCol 1 mat) = mat
+                                | otherwise =   let 	elem = mat Data.Matrix.! (posY, posX)
+							tempMat = agressiveProcessHasHouseTank posY posX mat
+                                                in
+                                                        if elem == 1
+                                                        then 	if (tempMat == mat) 
+								then iterateThrMatrix4 posY (posX+1) mat 
+								else tempMat
+                                                        else iterateThrMatrix4 posY (posX+1) mat 
+
 
 matElem x mat = Prelude.elem x (Data.Matrix.toList mat)
 
 solvePuzzles mat xList yList    | not (matElem 0 mat) = mat
                                 | otherwise = 
+				let 	tempMat = checkHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) 
+					tempMat2 = agressiveCheckHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) 
                                         --solvePuzzles (checkSharedTanks(checkNeighbours (checkSharedTanks(processCols (checkSharedTanks (processRows mat yList)) xList)))) xList yList -- po kazdym wolaniu funkcji jednej z tych 3 funkcji dac inne iterateThrMatrix ktore sprawdza domki, i jesli maja w sasiedztwie zbiornik
-                                        solvePuzzles (checkHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) ) xList yList  
-                                        
+                                        -- solvePuzzles (checkHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) ) xList yList  
+				in if (mat == tempMat) then solvePuzzles tempMat2 xList yList else solvePuzzles tempMat xList yList 
 
 
