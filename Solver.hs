@@ -60,6 +60,33 @@ hasTank y x mat = 	(safeGetMatrix (y-1) x mat == 3) ||
 			(safeGetMatrix y (x-1) mat == 3) || 
 			(safeGetMatrix y (x+1) mat == 3)
 
+neighbourTanksNum y x mat =  	let tanks = 	(safeGetMatrix (y-1) x mat == 3):
+						(safeGetMatrix (y+1) x mat == 3): 
+						(safeGetMatrix y (x-1) mat == 3): 
+						(safeGetMatrix y (x+1) mat == 3):[]
+				in countFreqList True tanks
+
+getNeighbourTankPos y x mat  	|(safeGetMatrix (y-1) x mat == 3) = ((y-1), x)
+				|(safeGetMatrix (y+1) x mat == 3) = ((y+1), x)
+				|(safeGetMatrix y (x-1) mat == 3) = (y, (x-1))
+				|(safeGetMatrix y (x+1) mat == 3) = (y, (x+1))
+				|otherwise = (0,0)
+				
+
+hasOwnTank y x mat = 	let tankPos = getNeighbourTankPos y x mat
+			in	if (neighbourTanksNum y x mat == 0)
+				then False
+				else 	if (neighbourTanksNum y x mat == 1)
+					then 	if ((neighbourHouses (fst tankPos) (snd tankPos) mat) == 1)
+						then True
+						else False
+					else 	if(neighbourTanksNum y x mat > 1)
+						then True
+						else False
+				
+
+
+
 avaliblePlaces y x mat = let 	left = 	x/=1
 		                right = x/= ncols mat
 		                top = y/=1
@@ -72,6 +99,19 @@ busyPlaces y x mat =    let 	checked = 	(safeGetMatrix (y-1) x mat == 9 || safeG
 						(safeGetMatrix y (x-1) mat == 9 || safeGetMatrix y (x-1) mat == 1 ):
 						(safeGetMatrix y (x+1) mat == 9 || safeGetMatrix y (x+1) mat == 1 ):[]
 			in 	countFreqList True checked
+
+neighbourHouses y x mat =  	let 	checked = 	(safeGetMatrix (y-1) x mat == 1 ):
+							(safeGetMatrix (y+1) x mat == 1 ):
+							(safeGetMatrix y (x-1) mat == 1 ):
+							(safeGetMatrix y (x+1) mat == 1 ):[]
+				in 	countFreqList True checked
+
+-- if house has tank
+-- 	that tank neighbourHouses ==1
+-- that house has own tank
+
+-- if 
+
 
 nearHouse y x mat = 	(safeGetMatrix (y-1) x mat == 1) ||  
 			(safeGetMatrix (y-1) (x-1) mat == 1) ||  
