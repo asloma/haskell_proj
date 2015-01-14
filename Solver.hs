@@ -15,9 +15,9 @@ import System.Random
 
 ----------------------------------------
 --testowe dane
-mat = fromLists [ [0,1,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,1,0,1,0],[1,0,0,0,1,0],[0,0,1,0,0,1] ]
-xList = [1,1,2,1,1,1]
-yList = [1,0,2,1,2,1]
+mat = fromLists [ [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1],[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0],[1,0,0,0,1,0,1,1,0,0,0,1,0,0,0,0],[0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,0],[0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0],[0,0,1,0,1,1,0,0,0,0,1,0,0,0,0,1],[0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0],[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0],[0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],[0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0],[0,1,0,0,0,0,0,1,1,0,0,0,1,0,0,0],[0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1],[0,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0],[0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0] ]
+xList = [4,2,4,0,6,0,5,2,5,2,5,2,4,3,2,5]
+yList = [4,3,2,3,4,2,6,1,6,1,4,2,6,0,4,3]
 
 
 
@@ -252,7 +252,7 @@ solvePuzzles mat xList yList    | not (matElem 0 mat) = mat
 					tempMat3 = parseEqualPlaces mat
                                         --solvePuzzles (checkSharedTanks(checkNeighbours (checkSharedTanks(processCols (checkSharedTanks (processRows mat yList)) xList)))) xList yList -- po kazdym wolaniu funkcji jednej z tych 3 funkcji dac inne iterateThrMatrix ktore sprawdza domki, i jesli maja w sasiedztwie zbiornik
                                         -- solvePuzzles (checkHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) ) xList yList  
-				in 	if (mat == tempMat2) 
+				in 	if (mat == tempMat) --(mat == tempMat2) 
 					then solvePuzzles tempMat3 xList yList 
 					else 	if (mat == tempMat) 
 						then solvePuzzles tempMat2 xList yList 
