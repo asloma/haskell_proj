@@ -149,61 +149,58 @@ processElemFunInt pos mat list getFun mapFun    | pos >= Prelude.length list    
                                                                                 then processElemFunInt (pos+1) (mapFun changeEmptyToTank (pos) mat) list getFun mapFun
                                                                                 else processElemFunInt (pos+1) mat list getFun mapFun
 
-checkNeighbours mat = iterateThrMatrix 1 1 mat
+checkNeighbours mat = checkNeighboursIterate 1 1 mat
 
-checkHousesLastPlaces mat = iterateThrMatrix2 1 1 mat
+checkHousesLastPlaces mat = checkHousesLastPlacesIterate 1 1 mat
 
-checkHousesWithTanks mat = iterateThrMatrix3 1 1 mat
+checkHousesWithTanks mat = checkHousesWithTanksIterate 1 1 mat
 
-agressiveCheckHousesWithTanks mat = iterateThrMatrix4 1 1 mat
+agressiveCheckHousesWithTanks mat = agressiveCheckHousesWithTanksIterate 1 1 mat
 
-parseEqualPlaces mat = iterateThrMatrix5 1 1 mat
+parseEqualPlaces mat = parseEqualPlacesIterate 1 1 mat
 
-iterateThrMatrix posY posX mat  | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix (posY+1) 1 mat
-                                | posY > Data.Vector.length (getCol 1 mat) = mat
-                                | otherwise =   let elem = mat Data.Matrix.! (posY,posX)
-                                                in
-                                                        if elem == 0
-                                                        then    if (isThisPlacePossibleHouse posY posX mat && isThisPlacePossibleTank posY posX mat)
-                                                                then iterateThrMatrix posY (posX+1) mat 
-                                                                else iterateThrMatrix posY (posX+1) (setElem 9 (posY, posX) mat)
-                                                        else iterateThrMatrix posY (posX+1) mat 
+iterateThrMatrix y x mat fun  	| x > Data.Vector.length (getRow 1 mat) = iterateThrMatrix (y+1) 1 mat fun
+                                | y > Data.Vector.length (getCol 1 mat) = mat
+                                | otherwise =   let elem = mat Data.Matrix.! (y,x)
+                                              	  in fun y x mat elem
 
-iterateThrMatrix2 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix2 (posY+1) 1 mat
-                                | posY > Data.Vector.length (getCol 1 mat) = mat
-                                | otherwise =   let elem = mat Data.Matrix.! (posY, posX)
-                                                in
-                                                        if elem == 1
-                                                        then iterateThrMatrix2 posY (posX+1) (processIsLastPlaceAvalible posY posX mat)   
-                                                        else iterateThrMatrix2 posY (posX+1) mat 
+checkNeighboursIterator y x mat elem =	if elem == 0
+                               		then    if (isThisPlacePossibleHouse y x mat && isThisPlacePossibleTank y x mat)
+                                                then checkNeighboursIterate y (x+1) mat 
+                                                else checkNeighboursIterate y (x+1) (setElem 9 (y, x) mat)
+                                        else checkNeighboursIterate y (x+1) mat 
 
-iterateThrMatrix3 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix3 (posY+1) 1 mat
-                                | posY > Data.Vector.length (getCol 1 mat) = mat
-                                | otherwise =   let elem = mat Data.Matrix.! (posY, posX)
-                                                in
-                                                        if elem == 1
-                                                        then iterateThrMatrix3 posY (posX+1) (processHasHouseTank posY posX mat)   
-                                                        else iterateThrMatrix3 posY (posX+1) mat 
+checkNeighboursIterate y x mat = iterateThrMatrix y x mat checkNeighboursIterator
 
-iterateThrMatrix4 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix4 (posY+1) 1 mat
-                                | posY > Data.Vector.length (getCol 1 mat) = mat
-                                | otherwise =   let 	elem = mat Data.Matrix.! (posY, posX)
-							tempMat = agressiveProcessHasHouseTank posY posX mat
-                                                in
-                                                        if elem == 1
-                                                        then 	if (tempMat == mat) 
-								then iterateThrMatrix4 posY (posX+1) mat 
-								else tempMat
-                                                        else iterateThrMatrix4 posY (posX+1) mat 
+checkHousesLastPlacesIterator y x mat elem = 		if elem == 1
+                                                        then checkHousesLastPlacesIterate y (x+1) (processIsLastPlaceAvalible y x mat)   
+                                                        else checkHousesLastPlacesIterate y (x+1) mat 
 
-iterateThrMatrix5 posY posX mat | posX > Data.Vector.length (getRow 1 mat) = iterateThrMatrix5 (posY+1) 1 mat
-                                | posY > Data.Vector.length (getCol 1 mat) = mat
-                                | otherwise =   let 	elem = mat Data.Matrix.! (posY, posX)
-                                                in		
-                                                        if elem == 0
-                                                        then  setElem 3 (posY,posX) mat
-                                                        else iterateThrMatrix5 posY (posX+1) mat
+checkHousesLastPlacesIterate y x mat = iterateThrMatrix y x mat checkHousesLastPlacesIterator
 
+checkHousesWithTanksIterator y x mat elem = 		if elem == 1
+                                                        then checkHousesWithTanksIterate y (x+1) (processHasHouseTank y x mat)   
+                                                        else checkHousesWithTanksIterate y (x+1) mat 
+
+checkHousesWithTanksIterate  y x mat = iterateThrMatrix y x mat checkHousesWithTanksIterator
+
+
+agressiveCheckHousesWithTanksIterator y x mat elem =    let tempMat = agressiveProcessHasHouseTank y x mat
+                                                	in 	if elem == 1
+                                                        	then 	if (tempMat == mat) 
+									then agressiveCheckHousesWithTanksIterate y (x+1) mat 
+									else tempMat
+                                                        	else agressiveCheckHousesWithTanksIterate y (x+1) mat 
+							
+
+agressiveCheckHousesWithTanksIterate y x mat = iterateThrMatrix y x mat agressiveCheckHousesWithTanksIterator
+                                                        
+parseEqualPlacesIterate y x mat = iterateThrMatrix y x mat parseEqualPlacesIterator
+
+
+parseEqualPlacesIterator y x mat elem = if elem == 0
+                                        then  setElem 3 (y,x) mat
+                                        else parseEqualPlacesIterate y (x+1) mat
 
 matElem x mat = Prelude.elem x (Data.Matrix.toList mat)
 
