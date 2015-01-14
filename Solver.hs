@@ -47,80 +47,71 @@ isThisPlacePossibleHouse y x mat = 	(safeGetMatrix (y-1) x mat == 1) ||
 --sprawdza czy domek o danych wspolrzednych w danej macierzy nie ma podlaczonego zbiornika, a ma tylko jedno niesprawdzone miejsce w sasiedztwie
 --wtedy to miejsce na pewno musi byc zbiornikiem
 isLastPlaceAvalibleHouse :: Int -> Int -> Matrix Integer -> Bool
-isLastPlaceAvalibleHouse y x mat =      let     left = x/=1
-                                                right = x/= ncols mat
-                                                top = y/=1
-                                                down = y/= nrows mat
-						avalible = left:right:top:down:[]
-						avalibleNum = countFreqList True avalible
-						hasTank = 	(safeGetMatrix (y-1) x mat == 3) ||
-								(safeGetMatrix (y+1) x mat == 3) || 
-								(safeGetMatrix y (x-1) mat == 3) || 
-								(safeGetMatrix y (x+1) mat == 3)
-                                                checked = 	(safeGetMatrix (y-1) x mat == 9 || safeGetMatrix (y-1) x mat == 1 ):
-								(safeGetMatrix (y+1) x mat == 9 || safeGetMatrix (y+1) x mat == 1 ):
-								(safeGetMatrix y (x-1) mat == 9 || safeGetMatrix y (x-1) mat == 1 ):
-								(safeGetMatrix y (x+1) mat == 9 || safeGetMatrix y (x+1) mat == 1 ):[]
-						checkedNum = countFreqList True checked
-					in	if hasTank then False else if (checkedNum == avalibleNum - 1) then True else False
+isLastPlaceAvalibleHouse y x mat =	if hasTank y x mat 
+					then False 
+					else 	if (busyPlaces y x mat == (avaliblePlaces y x mat) - 1) 
+						then True 
+						else False
+----------------------------------------
+--sprawdza czy domek o danych wspolrzednych w danej macierzy ma podlaczony zbiornik niesprawdzajac, czy ten zbiornik sasiaduje z innym domkiem 
+--(sytuacja gdy np jest w wierszu domek-zbiornik-domek-zbiornik) - wykonywane, gdy sprawdzanie z kontrola sasiedztwa nie daje nowych wynikow
+hasTank y x mat = 	(safeGetMatrix (y-1) x mat == 3) ||
+			(safeGetMatrix (y+1) x mat == 3) || 
+			(safeGetMatrix y (x-1) mat == 3) || 
+			(safeGetMatrix y (x+1) mat == 3)
+
+avaliblePlaces y x mat = let 	left = 	x/=1
+		                right = x/= ncols mat
+		                top = y/=1
+		                down = y/= nrows mat
+				avalible = left:right:top:down:[]
+			in	countFreqList True avalible
+
+busyPlaces y x mat =    let 	checked = 	(safeGetMatrix (y-1) x mat == 9 || safeGetMatrix (y-1) x mat == 1 ):
+						(safeGetMatrix (y+1) x mat == 9 || safeGetMatrix (y+1) x mat == 1 ):
+						(safeGetMatrix y (x-1) mat == 9 || safeGetMatrix y (x-1) mat == 1 ):
+						(safeGetMatrix y (x+1) mat == 9 || safeGetMatrix y (x+1) mat == 1 ):[]
+			in 	countFreqList True checked
+
+nearHouse y x mat = 	(safeGetMatrix (y-1) x mat == 1) ||  
+			(safeGetMatrix (y-1) (x-1) mat == 1) ||  
+			(safeGetMatrix (y-1) (x+1) mat == 1) ||  
+			(safeGetMatrix (y+1) x mat == 1) || 
+			(safeGetMatrix (y+1) (x-1) mat == 1) || 
+			(safeGetMatrix (y+1) (x+1) mat == 1) || 
+			(safeGetMatrix y (x-1) mat == 1) || 
+			(safeGetMatrix y (x+1) mat == 1) 
 
 ----------------------------------------
 --sprawdza czy domek o danych wspolrzednych w danej macierzy ma podlaczony zbiornik, z ktorym nie sasiaduje inny domek
 --mozna wtedy uznac, ze ten domek ma juz podlaczony zbiornik
 hasHouseTank :: Int -> Int -> Matrix Integer -> Bool
-hasHouseTank y x mat =      let    
-						hasTank = 	(safeGetMatrix (y-1) x mat == 3) ||
-								(safeGetMatrix (y+1) x mat == 3) || 
-								(safeGetMatrix y (x-1) mat == 3) || 
-								(safeGetMatrix y (x+1) mat == 3)
-                                                nearHouse = 	( (safeGetMatrix (y-1) x mat == 1) ||  
-                                               			(safeGetMatrix (y-1) (x-1) mat == 1) ||  
-                                                		(safeGetMatrix (y-1) (x+1) mat == 1) ||  
-                                               			(safeGetMatrix (y+1) x mat == 1) || 
-                                                		(safeGetMatrix (y+1) (x-1) mat == 1) || 
-                                                		(safeGetMatrix (y+1) (x+1) mat == 1) || 
-                                                		(safeGetMatrix y (x-1) mat == 1) || 
-                                                		(safeGetMatrix y (x+1) mat == 1) )
-					in	if (hasTank && not nearHouse) then True else False
+hasHouseTank y x mat = if ((hasTank y x mat) && not (nearHouse y x mat)) then True else False
 
-----------------------------------------
---sprawdza czy domek o danych wspolrzednych w danej macierzy ma podlaczony zbiornik niesprawdzajac, czy ten zbiornik sasiaduje z innym domkiem 
---(sytuacja gdy np jest w wierszu domek-zbiornik-domek-zbiornik) - wykonywane, gdy sprawdzanie z kontrola sasiedztwa nie daje nowych wynikow
-agressiveHasHouseTank :: Int -> Int -> Matrix Integer -> Bool
-agressiveHasHouseTank y x mat =      let    
-						hasTank = 	(safeGetMatrix (y-1) x mat == 3) ||
-								(safeGetMatrix (y+1) x mat == 3) || 
-								(safeGetMatrix y (x-1) mat == 3) || 
-								(safeGetMatrix y (x+1) mat == 3)
-					in	if hasTank then True else False
+
+
+
+
+checkAndReplace y x mat checkFun from to =   	if (checkFun y x mat) then
+							if (safeGetMatrix (y-1) x mat  == from) then (setElem to (y-1,x) mat)
+							else if (safeGetMatrix (y+1) x mat == from) then (setElem to (y+1,x) mat)
+							else if (safeGetMatrix y (x-1) mat == from) then (setElem to (y,x-1) mat)
+							else if (safeGetMatrix y (x+1) mat == from) then (setElem to (y,x+1) mat)
+							else mat
+						else mat
+
 
 processHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer						
-processHasHouseTank y x mat =   		if (hasHouseTank y x mat) then
-							if (safeGetMatrix (y-1) x mat  == 0) then (setElem 9 (y-1,x) mat)
-							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 9 (y+1,x) mat)
-							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 9 (y,x-1) mat)
-							else if (safeGetMatrix y (x+1) mat == 0) then (setElem 9 (y,x+1) mat)
-							else mat
-						else mat
+processHasHouseTank y x mat =  checkAndReplace x y mat hasHouseTank 0 9
 
-agressiveProcessHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer						
-agressiveProcessHasHouseTank y x mat =   		if (agressiveHasHouseTank y x mat) then
-							if (safeGetMatrix (y-1) x mat  == 0) then (setElem 9 (y-1,x) mat)
-							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 9 (y+1,x) mat)
-							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 9 (y,x-1) mat)
-							else if (safeGetMatrix y (x+1) mat == 0) then (setElem 9 (y,x+1) mat)
-							else mat
-						else mat
+
+
+agressiveProcessHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer
+agressiveProcessHasHouseTank y x mat =   checkAndReplace x y mat hasTank 0 9
 
 
 processIsLastPlaceAvalible :: Int -> Int -> Matrix Integer -> Matrix Integer						
-processIsLastPlaceAvalible y x mat =   		if (isLastPlaceAvalibleHouse y x mat) then
-							if (safeGetMatrix (y-1) x mat == 0) then (setElem 3 (y-1,x) mat)
-							else if (safeGetMatrix (y+1) x mat == 0) then (setElem 3 (y+1,x) mat)
-							else if (safeGetMatrix y (x-1) mat == 0) then (setElem 3 (y,x-1) mat)
-							else if (safeGetMatrix y (x+1) mat == 0) then (setElem 3 (y,x+1) mat)
-							else mat
-						else mat
+processIsLastPlaceAvalible y x mat =  checkAndReplace x y mat isLastPlaceAvalibleHouse 0 3 
 
 isThisPlacePossibleTank :: Int -> Int -> Matrix Integer -> Bool
 isThisPlacePossibleTank y x mat = 		not ( (safeGetMatrix (y-1) x mat == 3) ||  
