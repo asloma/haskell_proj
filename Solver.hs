@@ -142,7 +142,7 @@ checkAndReplace y x mat checkFun from to =   	if (checkFun y x mat) then
 
 
 processHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer						
-processHasHouseTank y x mat =  checkAndReplace y x mat hasHouseTank 0 9
+processHasHouseTank y x mat =  checkAndReplace y x mat hasOwnTank 0 9
 
 
 
@@ -257,5 +257,3 @@ solvePuzzles mat xList yList    | not (matElem 0 mat) = mat
 					else 	if (mat == tempMat) 
 						then solvePuzzles tempMat2 xList yList 
 						else solvePuzzles tempMat xList yList 
-
-
