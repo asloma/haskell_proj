@@ -223,8 +223,6 @@ checkHousesLastPlaces mat = checkHousesLastPlacesIterate 1 1 mat
 --juz podlaczony zbiornik
 checkHousesWithTanks mat = checkHousesWithTanksIterate 1 1 mat
 
-agressiveCheckHousesWithTanks mat = agressiveCheckHousesWithTanksIterate 1 1 mat
-
 ----------------------------------------
 --rozpatruje przypadek, gdy pozostale wolne miejsca sa rownowazne dla algorytmu, zamienia pierwsze napotkane 
 --na zbiornik i zwraca taka macierz do sprawdzenia, czy przez te zmiany zmienily sie przewidywania algorytmu
@@ -285,16 +283,6 @@ checkHousesWithTanksIterator y x mat elem = 	if elem == 1
 --eliminuje nieprzetworzone pola wokol domkow, ktore maja
 --juz podlaczony zbiornik
 checkHousesWithTanksIterate  y x mat = iterateThrMatrix y x mat checkHousesWithTanksIterator
-
-
-agressiveCheckHousesWithTanksIterator y x mat elem =    let tempMat = agressiveProcessHasHouseTank y x mat
-                                                	in 	if elem == 1
-                                                        	then 	if (tempMat == mat) 
-									then agressiveCheckHousesWithTanksIterate y (x+1) mat 
-									else tempMat
-                                                        	else agressiveCheckHousesWithTanksIterate y (x+1) mat 
-							
-agressiveCheckHousesWithTanksIterate y x mat = iterateThrMatrix y x mat agressiveCheckHousesWithTanksIterator
                                                         
 ----------------------------------------
 --przeznacozna do zaaplikowania do wszystkich pol macierzy
@@ -335,10 +323,7 @@ matElem x mat = Prelude.elem x (Data.Matrix.toList mat)
 solvePuzzles mat xList yList    | not (matElem 0 mat) = mat
                                 | otherwise = 
 					let 	tempMat = checkHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) ) 
-						tempMat2 = agressiveCheckHousesWithTanks(checkHousesLastPlaces(checkNeighbours (processCols (processRows mat yList) xList)) )
 						tempMat3 = parseEqualPlaces mat
-					in 	if (mat == tempMat) --(mat == tempMat2) 
+					in 	if (mat == tempMat) 
 						then solvePuzzles tempMat3 xList yList 
-						else 	if (mat == tempMat) 
-							then solvePuzzles tempMat2 xList yList 
-							else solvePuzzles tempMat xList yList 
+						else solvePuzzles tempMat xList yList 
