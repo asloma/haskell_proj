@@ -102,16 +102,16 @@ checkAndReplace y x mat checkFun from to =   	if (checkFun y x mat) then
 
 
 processHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer						
-processHasHouseTank y x mat =  checkAndReplace x y mat hasHouseTank 0 9
+processHasHouseTank y x mat =  checkAndReplace y x mat hasHouseTank 0 9
 
 
 
 agressiveProcessHasHouseTank :: Int -> Int -> Matrix Integer -> Matrix Integer
-agressiveProcessHasHouseTank y x mat =   checkAndReplace x y mat hasTank 0 9
+agressiveProcessHasHouseTank y x mat =   checkAndReplace y x mat hasTank 0 9
 
 
 processIsLastPlaceAvalible :: Int -> Int -> Matrix Integer -> Matrix Integer						
-processIsLastPlaceAvalible y x mat =  checkAndReplace x y mat isLastPlaceAvalibleHouse 0 3 
+processIsLastPlaceAvalible y x mat =  checkAndReplace y x mat isLastPlaceAvalibleHouse 0 3 
 
 isThisPlacePossibleTank :: Int -> Int -> Matrix Integer -> Bool
 isThisPlacePossibleTank y x mat = 		not ( (safeGetMatrix (y-1) x mat == 3) ||  
