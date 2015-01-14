@@ -12,33 +12,40 @@ import Data.Matrix
 import Data.Vector
 import Data.List
 import System.Random
- 
-mat = fromLists [ [0,0,0,1,0,0,0,0,1,0],[0,0,0,0,0,1,1,0,0,0],[0,1,0,0,0,0,0,0,0,0],[1,0,0,0,1,0,0,1,0,0],[0,0,0,1,0,0,0,0,1,0],[0,1,0,0,0,1,0,0,0,1],[0,0,0,0,0,1,0,1,0,0],[0,0,0,0,0,0,0,0,0,0],[1,0,1,0,1,0,0,1,0,1],[1,0,0,0,0,0,0,0,1,0] ]
-xList = [3,1,3,1,3,1,3,2,3,2]
-yList = [2,2,2,2,2,3,1,3,2,3]
+
+----------------------------------------
+--testowe dane
+mat = fromLists [ [0,1,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,1,0,1,0],[1,0,0,0,1,0],[0,0,1,0,0,1] ]
+xList = [1,1,2,1,1,1]
+yList = [1,0,2,1,2,1]
 
 
 
 listFromIntegral list = Data.List.map fromIntegral list
 
-sizesAreCorrect mat xList yList =       if Data.Vector.length (getRow 1 mat) == Prelude.length xList && Data.Vector.length (getCol 1 mat) == Prelude.length yList then 
-                                                True 
-                                        else    False
+----------------------------------------
+--funkcja uzywana do mapowania - zmienia puste miejsca na sprawdzone 
+changeEmptyToChecked _ x =	if x == 0 
+				then 9
+                        	else x
 
-changeEmptyToChecked _ x =      if x == 0 then
-                                9
+----------------------------------------
+--funkcja uzywana do mapowania - zmienia puste miejsca na zbiorniki
+changeEmptyToTank _ x =	if x == 0 
+			then 3 
                         else x
 
-changeZeroToTank _ x =  if x == 0 then
-                                3 
-                        else x
-
+----------------------------------------
+--sprawdza czy puste miejsce o danych wspolrzednych w danej macierzy jest potencjalnym miejscem na zbiornik dzieki sasiedztwu domku
 isThisPlacePossibleHouse :: Int -> Int -> Matrix Integer -> Bool
 isThisPlacePossibleHouse y x mat = 	(safeGetMatrix (y-1) x mat == 1) ||
 					(safeGetMatrix (y+1) x mat == 1) || 
 					(safeGetMatrix y (x-1) mat == 1) || 
 					(safeGetMatrix y (x+1) mat == 1)
 
+----------------------------------------
+--sprawdza czy domek o danych wspolrzednych w danej macierzy nie ma podlaczonego zbiornika, a ma tylko jedno niesprawdzone miejsce w sasiedztwie
+--wtedy to miejsce na pewno musi byc zbiornikiem
 isLastPlaceAvalibleHouse :: Int -> Int -> Matrix Integer -> Bool
 isLastPlaceAvalibleHouse y x mat =      let     left = x/=1
                                                 right = x/= ncols mat
@@ -57,7 +64,9 @@ isLastPlaceAvalibleHouse y x mat =      let     left = x/=1
 						checkedNum = countFreqList True checked
 					in	if hasTank then False else if (checkedNum == avalibleNum - 1) then True else False
 
-
+----------------------------------------
+--sprawdza czy domek o danych wspolrzednych w danej macierzy ma podlaczony zbiornik, z ktorym nie sasiaduje inny domek
+--mozna wtedy uznac, ze ten domek ma juz podlaczony zbiornik
 hasHouseTank :: Int -> Int -> Matrix Integer -> Bool
 hasHouseTank y x mat =      let    
 						hasTank = 	(safeGetMatrix (y-1) x mat == 3) ||
@@ -74,6 +83,9 @@ hasHouseTank y x mat =      let
                                                 		(safeGetMatrix y (x+1) mat == 1) )
 					in	if (hasTank && not nearHouse) then True else False
 
+----------------------------------------
+--sprawdza czy domek o danych wspolrzednych w danej macierzy ma podlaczony zbiornik niesprawdzajac, czy ten zbiornik sasiaduje z innym domkiem 
+--(sytuacja gdy np jest w wierszu domek-zbiornik-domek-zbiornik) - wykonywane, gdy sprawdzanie z kontrola sasiedztwa nie daje nowych wynikow
 agressiveHasHouseTank :: Int -> Int -> Matrix Integer -> Bool
 agressiveHasHouseTank y x mat =      let    
 						hasTank = 	(safeGetMatrix (y-1) x mat == 3) ||
@@ -143,7 +155,7 @@ processElemFunInt pos mat list getFun mapFun    | pos >= Prelude.length list    
                                                                         if countFreq 3 (getFun pos mat) == numTanks
                                                                         then processElemFunInt (pos+1) (mapFun changeEmptyToChecked (pos) mat) list getFun mapFun
                                                                         else    if ( countFreq 0 (getFun pos mat) + countFreq 3 (getFun pos mat) ) <= numTanks
-                                                                                then processElemFunInt (pos+1) (mapFun changeZeroToTank (pos) mat) list getFun mapFun
+                                                                                then processElemFunInt (pos+1) (mapFun changeEmptyToTank (pos) mat) list getFun mapFun
                                                                                 else processElemFunInt (pos+1) mat list getFun mapFun
 
 checkNeighbours mat = iterateThrMatrix 1 1 mat
