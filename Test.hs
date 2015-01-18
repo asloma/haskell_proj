@@ -97,6 +97,11 @@ solverTest fPath fSolPath = do
         let row2 = contentList !! 1
         let row3 = contentList !! 2
         
+        --sprawdzenie poprawnoœci odczytanych wierszy
+        isIntegerList row1  
+        isIntegerList row2
+        isIntTopleList row3
+                        
         let intListLeft         = read row1 :: [Integer]
         let intListTop          = read row2 :: [Integer]
         let row3IntTupleList    = mapTuple (\x -> x+1) (read row3 :: [(Int, Int)]) --matrix numerowy od 1,1, a nie 0,0
@@ -119,8 +124,8 @@ solverTest fPath fSolPath = do
         putStrLn "Rozwiazanie wczytane z pliku:"   
         openSolutionAndShow intListLeft intListTop gameBoard fSolPath
         putStrLn "------------------------------"
-        putStrLn "Macierz solvera:"
-        putStrLn(show solution) 
+        --putStrLn "Macierz solvera:"
+        --putStrLn(show solution) 
         putStrLn ("solverTest file: " L.++ fPath L.++ " END")
         putStrLn "------------------------------------------------------------"
 
@@ -129,9 +134,9 @@ solverTest fPath fSolPath = do
 solverTestAll = 
          do
           solverTest "test_files/p1.txt" "sol_files/sp1.txt"
-          --solverTest "test_files/p2.txt" "sol_files/sp2.txt"
-          --solverTest "test_files/p3.txt" "sol_files/sp3.txt"
-          --solverTest "test_files/p4.txt" "sol_files/sp4.txt"
-          --solverTest "test_files/p5.txt" "sol_files/sp5.txt"
-          --solverTest "test_files/p6.txt" "sol_files/sp6.txt"
-          --solverTest "test_files/p7.txt" "sol_files/sp7.txt"
+          solverTest "test_files/p2.txt" "sol_files/sp2.txt"
+          solverTest "test_files/p3.txt" "sol_files/sp3.txt"
+          solverTest "test_files/p4.txt" "sol_files/sp4.txt"
+          solverTest "test_files/p5.txt" "sol_files/sp5.txt"
+          solverTest "test_files/p6.txt" "sol_files/sp6.txt"
+          solverTest "test_files/p7.txt" "sol_files/sp7.txt"
